@@ -68,7 +68,10 @@ namespace Gazette
 				return false;
 			}
 			if (!int.TryParse(PortTextBox.Text, out int port))
-				throw new ArgumentException("Invalid port.");
+			{
+				Log("Invalid port.");
+				return false;
+			}
 
 			DatabaseIPTextBox.Enabled = false;
 			DatabaseNameTextBox.Enabled = false;
