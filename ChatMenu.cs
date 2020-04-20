@@ -16,8 +16,8 @@ namespace Gazette
 {
 	public partial class ChatMenu : Form
 	{
-		TcpClient client;
-		string UserID;
+		private TcpClient client;
+		private string UserID;
 		public ChatMenu()
 		{
 			InitializeComponent();
@@ -29,7 +29,6 @@ namespace Gazette
 			client = new TcpClient();
 			client.Connect(address);
 			new JoinMessage() { UserID = UserID }.Send(client);
-			
 		}
 
 		private void SendButton_Click(object sender, EventArgs e)
@@ -41,7 +40,9 @@ namespace Gazette
 		private void ChatBox_KeyDown(object sender, KeyEventArgs e)
 		{
 			if (e.KeyCode == Keys.Enter)
+			{
 				SendButton.PerformClick();
+			}
 		}
 	}
 }
