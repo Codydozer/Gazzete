@@ -28,20 +28,14 @@ namespace Gazette
 			UserID = userID;
 			client = new TcpClient();
 			client.Connect(address);
-			SendMessage(new JoinMessage() { UserID = UserID });
+			new JoinMessage() { UserID = UserID }.Send(client);
 			
 		}
 
 		private void SendButton_Click(object sender, EventArgs e)
 		{
-			SendMessage(new ChatMessage() { Text = ChatBox.Text });
+			new ChatMessage() { Text = ChatBox.Text }.Send(client);
 			ChatBox.Text = "";
-		}
-
-		void SendMessage(NetworkMessage message)
-		{
-			byte[] messageBytes = message.Serialize();
-			client.GetStream().Write(messageBytes, 0, messageBytes.Length);
 		}
 
 		private void ChatBox_KeyDown(object sender, KeyEventArgs e)
