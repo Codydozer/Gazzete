@@ -75,15 +75,15 @@
 			// NameTextBox
 			// 
 			this.NameTextBox.Anchor = System.Windows.Forms.AnchorStyles.None;
-			this.NameTextBox.ForeColor = System.Drawing.SystemColors.GrayText;
+			this.NameTextBox.ForeColor = System.Drawing.SystemColors.WindowText;
 			this.NameTextBox.Location = new System.Drawing.Point(12, 150);
 			this.NameTextBox.Multiline = false;
 			this.NameTextBox.Name = "NameTextBox";
 			this.NameTextBox.Size = new System.Drawing.Size(135, 20);
 			this.NameTextBox.TabIndex = 3;
-			this.NameTextBox.Text = "User Name";
+			this.NameTextBox.Text = "";
 			this.NameTextBox.TextWrapper = "";
-			this.NameTextBox.WatermarkedText = "User Name";
+			this.NameTextBox.WatermarkedText = "Username";
 			// 
 			// LogBox
 			// 

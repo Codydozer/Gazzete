@@ -87,6 +87,7 @@
     <Compile Include="NetworkMessages\JoinMessage.cs" />
     <Compile Include="NetworkMessages\NetworkMessage.cs" />
     <Compile Include="NetworkMessages\UsersMessage.cs" />
+    <Compile Include="Network\NetworkClient.cs" />
     <Compile Include="Network\NetworkServer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -1,15 +1,8 @@
-﻿using Gazette.NetworkMessages;
-using MySql.Data.MySqlClient.Memcached;
+﻿using Gazette.Network;
+using Gazette.NetworkMessages;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -18,21 +11,22 @@ namespace Gazette
 {
 	public partial class ChatMenu : Form
 	{
-		private TcpClient client;
-		private string UserID;
+		private NetworkClient client;
 		private CancellationTokenSource tokenSource = new CancellationTokenSource();
 		public ChatMenu()
 		{
 			InitializeComponent();
 		}
 
-		public void Connect(IPEndPoint address, string userID)
+		public async Task ConnectAsync(IPEndPoint address, string userID)
 		{
-			UserID = userID;
-			client = new TcpClient();
-			client.Connect(address);
-			new JoinMessage() { UserID = UserID }.Send(client);
-			Task.Run(() => ClientLoop(tokenSource.Token));
+			TcpClient tcpClient = new TcpClient();
+			tcpClient.Connect(address);
+
+			client = new NetworkClient(tcpClient);
+			client.Name = userID;
+			await client.SendMessageAsync(new JoinMessage() { Name = client.Name }, tokenSource.Token);
+			_ = Task.Run(() => ClientLoop(tokenSource.Token));
 			
 		}
 
@@ -40,8 +34,7 @@ namespace Gazette
 		{
 			while (!token.IsCancellationRequested)
 			{
-				BinaryFormatter formatter = new BinaryFormatter();
-				HandleMessage(await Task.Run(() => formatter.Deserialize(client.GetStream()), token) as NetworkMessage);
+				HandleMessage(await client.GetMessageAsync(tokenSource.Token));
 			}
 		}
 
@@ -50,9 +43,9 @@ namespace Gazette
 
 		}
 
-		private void SendButton_Click(object sender, EventArgs e)
+		private async void SendButton_Click(object sender, EventArgs e)
 		{
-			new ChatMessage() { Text = ChatBox.Text }.Send(client);
+			await client.SendMessageAsync(new ChatMessage() { Text = ChatBox.Text }, tokenSource.Token);
 			ChatBox.Text = "";
 		}
 
