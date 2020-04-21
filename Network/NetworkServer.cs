@@ -1,6 +1,8 @@
 ﻿using Gazette.NetworkMessages;
+using MySql.Data.MySqlClient.Memcached;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -73,6 +75,9 @@ namespace Gazette.Network
 				{
 					Log($"{joinMessage.UserID} joined the server.");
 					clients.Add(client, joinMessage.UserID);
+
+					foreach (TcpClient tcpClient in clients.Keys)
+						new UsersMessage() { Users = clients.Values.ToArray() }.Send(tcpClient);
 				}
 			}
 		}

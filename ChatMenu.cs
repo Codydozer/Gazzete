@@ -8,7 +8,9 @@ using System.Drawing;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -18,6 +20,7 @@ namespace Gazette
 	{
 		private TcpClient client;
 		private string UserID;
+		private CancellationTokenSource tokenSource = new CancellationTokenSource();
 		public ChatMenu()
 		{
 			InitializeComponent();
@@ -29,7 +32,22 @@ namespace Gazette
 			client = new TcpClient();
 			client.Connect(address);
 			new JoinMessage() { UserID = UserID }.Send(client);
+			Task.Run(() => ClientLoop(tokenSource.Token));
 			UpdateUserLog();
+		}
+
+		private async Task ClientLoop(CancellationToken token)
+		{
+			while (!token.IsCancellationRequested)
+			{
+				BinaryFormatter formatter = new BinaryFormatter();
+				HandleMessage(await Task.Run(() => formatter.Deserialize(client.GetStream()), token) as NetworkMessage);
+			}
+		}
+
+		private void HandleMessage(NetworkMessage message)
+		{
+
 		}
 
 		private void SendButton_Click(object sender, EventArgs e)
