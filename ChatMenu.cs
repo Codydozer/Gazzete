@@ -1,4 +1,4 @@
-﻿using Gazette.NetworkMessages;
+using Gazette.NetworkMessages;
 using MySql.Data.MySqlClient.Memcached;
 using System;
 using System.Collections.Generic;
@@ -29,6 +29,7 @@ namespace Gazette
 			client = new TcpClient();
 			client.Connect(address);
 			new JoinMessage() { UserID = UserID }.Send(client);
+			UpdateUserLog();
 		}
 
 		private void SendButton_Click(object sender, EventArgs e)
@@ -43,6 +44,11 @@ namespace Gazette
 			{
 				SendButton.PerformClick();
 			}
+		}
+
+		private void UpdateUserLog()
+		{
+			UsersLog.Items.Add(UserID);
 		}
 	}
 }

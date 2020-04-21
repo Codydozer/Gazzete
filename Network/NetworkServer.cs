@@ -11,10 +11,10 @@ namespace Gazette.Network
 {
 	public class NetworkServer
 	{
-		bool running;
-		TcpListener listener;
-		CancellationTokenSource token = new CancellationTokenSource();
-		Dictionary<TcpClient, string> clients = new Dictionary<TcpClient, string>();
+		private bool running;
+		private TcpListener listener;
+		private CancellationTokenSource token = new CancellationTokenSource();
+		private Dictionary<TcpClient, string> clients = new Dictionary<TcpClient, string>();
 
 		public event Action<string> OutputLog;
 		public NetworkServer(IPEndPoint address) => listener = new TcpListener(address);
@@ -34,7 +34,7 @@ namespace Gazette.Network
 			return true;
 		}
 
-		async void Loop()
+		private async void Loop()
 		{
 			while(running)
 			{
@@ -54,7 +54,7 @@ namespace Gazette.Network
 			token.Cancel();
 		}
 
-		async Task HandleClient(TcpClient client, CancellationToken token)
+		private async Task HandleClient(TcpClient client, CancellationToken token)
 		{
 			while(!token.IsCancellationRequested)
 			{
@@ -63,7 +63,7 @@ namespace Gazette.Network
 			}
 		}
 
-		void HandleMessage(NetworkMessage message, TcpClient client)
+		private void HandleMessage(NetworkMessage message, TcpClient client)
 		{
 			lock (this)
 			{
@@ -77,6 +77,6 @@ namespace Gazette.Network
 			}
 		}
 
-		void Log(string text) => OutputLog.Invoke($"{DateTime.Now.ToLongTimeString()}: {text}");
+		private void Log(string text) => OutputLog.Invoke($"{DateTime.Now.ToLongTimeString()}: {text}");
 	}
 }
