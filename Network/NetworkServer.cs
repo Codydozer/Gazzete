@@ -1,11 +1,9 @@
 ﻿using Gazette.NetworkMessages;
-using MySql.Data.MySqlClient.Memcached;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,12 +11,14 @@ namespace Gazette.Network
 {
 	public class NetworkServer
 	{
+		public event Action<string[]> ClientsChanged;
+		public event Action<string> OutputLog;
+
 		private bool running;
 		private TcpListener listener;
-		private CancellationTokenSource token = new CancellationTokenSource();
-		private Dictionary<TcpClient, string> clients = new Dictionary<TcpClient, string>();
+		private CancellationTokenSource tokenSource = new CancellationTokenSource();
+		private List<NetworkClient> clients = new List<NetworkClient>();
 
-		public event Action<string> OutputLog;
 		public NetworkServer(IPEndPoint address) => listener = new TcpListener(address);
 
 		public bool Start()
@@ -32,56 +32,101 @@ namespace Gazette.Network
 			Log("Starting server.");
 			listener.Start();
 			running = true;
-			Task.Run(() => Loop());
+			Task.Run(() => NewConnectionLoop());
+			Task.Run(() => ClientLoop());
+			Log("Server started.");
 			return true;
-		}
-
-		private async void Loop()
-		{
-			while(running)
-			{
-				try
-				{
-					TcpClient client = await listener.AcceptTcpClientAsync();
-					_ = Task.Run(() => HandleClient(client, token.Token));
-				}
-				catch (ObjectDisposedException) { }
-			}
 		}
 
 		public void Stop()
 		{
 			running = false;
 			listener.Stop();
-			token.Cancel();
+			tokenSource.Cancel();
 		}
 
-		private async Task HandleClient(TcpClient client, CancellationToken token)
+		private async void NewConnectionLoop()
 		{
-			while(!token.IsCancellationRequested)
+			while(running)
 			{
-				BinaryFormatter formatter = new BinaryFormatter();
-				HandleMessage(await Task.Run(() => formatter.Deserialize(client.GetStream()), token) as NetworkMessage, client);
+				try
+				{
+					NetworkClient client = new NetworkClient(await listener.AcceptTcpClientAsync());
+					_ = Task.Run(() => HandleClient(client));
+				}
+				catch (ObjectDisposedException) { }
 			}
 		}
 
-		private void HandleMessage(NetworkMessage message, TcpClient client)
+		private async void ClientLoop()
+		{
+			while (running)
+			{
+				// We scan every second.
+				await Task.Delay(TimeSpan.FromSeconds(1));
+				bool shouldUpdate = false;
+
+				foreach(NetworkClient client in clients.ToList())	// ToList() creates a copy so we can edit it
+				{
+					// If the clients are connected, do nothing
+					if (client.IsConnected())
+						continue;
+
+					// Otherwise remove them and tell listeners about the change
+					clients.Remove(client);
+					Log($"{client.Name} disconnected from the server."); 
+					MessageClients(new DisconnectMessage() { Name = client.Name });
+					shouldUpdate = true;
+				}
+
+				if (shouldUpdate)
+					UpdateClients();
+			}
+		}
+
+		private async Task HandleClient(NetworkClient client)
+		{
+			while (running)
+				HandleMessage(await client.GetMessageAsync(tokenSource.Token), client);
+		}
+
+		void HandleMessage(NetworkMessage message, NetworkClient client)
 		{
 			lock (this)
 			{
 				if (message is ChatMessage chatMessage)
-					Log($"{clients[client]} says, \"{chatMessage.Text}\"");
-				else if(message is JoinMessage joinMessage)
 				{
-					Log($"{joinMessage.UserID} joined the server.");
-					clients.Add(client, joinMessage.UserID);
+					Log($"{client.Name} says, \"{chatMessage.Text}\"");
+					MessageClients(chatMessage);
+				}
+				else if (message is JoinMessage joinMessage)
+				{
+					client.Name = joinMessage.Name;
+					clients.Add(client);
 
-					foreach (TcpClient tcpClient in clients.Keys)
-						new UsersMessage() { Users = clients.Values.ToArray() }.Send(tcpClient);
+
+					UpdateClients();
+					MessageClients(joinMessage);
+
+					Log($"{client.Name} joined the server.");
 				}
 			}
 		}
 
-		private void Log(string text) => OutputLog.Invoke($"{DateTime.Now.ToLongTimeString()}: {text}");
+		private void UpdateClients()
+		{
+			string[] clientNames = clients.Select((c) => c.Name).ToArray();
+			ClientsChanged.Invoke(clientNames);
+
+			MessageClients(new UsersMessage() { Users = clientNames });
+		}
+
+		private void MessageClients(NetworkMessage message)
+		{
+			foreach (NetworkClient client in clients)
+				Task.Run(() => client.SendMessageAsync(message, tokenSource.Token));
+		}
+
+		void Log(string text) => OutputLog.Invoke($"{DateTime.Now.ToLongTimeString()}: {text}");
 	}
 }

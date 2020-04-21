@@ -30,18 +30,19 @@
 		{
 			this.HostButton = new System.Windows.Forms.Button();
 			this.ReturnButton = new System.Windows.Forms.Button();
-			this.listBox1 = new System.Windows.Forms.ListBox();
+			this.LogBox = new System.Windows.Forms.ListBox();
 			this.PortTextBox = new Gazette.WatermarkedRichTextBox();
 			this.DatabasePasswordTextBox = new Gazette.WatermarkedRichTextBox();
 			this.DatabaseUserIDTextBox = new Gazette.WatermarkedRichTextBox();
 			this.DatabaseNameTextBox = new Gazette.WatermarkedRichTextBox();
 			this.DatabaseIPTextBox = new Gazette.WatermarkedRichTextBox();
+			this.UserBox = new System.Windows.Forms.ListBox();
 			this.SuspendLayout();
 			// 
 			// HostButton
 			// 
 			this.HostButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.HostButton.Location = new System.Drawing.Point(93, 175);
+			this.HostButton.Location = new System.Drawing.Point(93, 215);
 			this.HostButton.Name = "HostButton";
 			this.HostButton.Size = new System.Drawing.Size(75, 23);
 			this.HostButton.TabIndex = 8;
@@ -52,7 +53,7 @@
 			// ReturnButton
 			// 
 			this.ReturnButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.ReturnButton.Location = new System.Drawing.Point(12, 176);
+			this.ReturnButton.Location = new System.Drawing.Point(12, 215);
 			this.ReturnButton.Name = "ReturnButton";
 			this.ReturnButton.Size = new System.Drawing.Size(75, 23);
 			this.ReturnButton.TabIndex = 9;
@@ -60,16 +61,16 @@
 			this.ReturnButton.UseVisualStyleBackColor = true;
 			this.ReturnButton.Click += new System.EventHandler(this.ReturnButton_Click);
 			// 
-			// listBox1
+			// LogBox
 			// 
-			this.listBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+			this.LogBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.listBox1.FormattingEnabled = true;
-			this.listBox1.Location = new System.Drawing.Point(174, 13);
-			this.listBox1.Name = "listBox1";
-			this.listBox1.Size = new System.Drawing.Size(156, 186);
-			this.listBox1.TabIndex = 10;
+			this.LogBox.FormattingEnabled = true;
+			this.LogBox.Location = new System.Drawing.Point(174, 13);
+			this.LogBox.Name = "LogBox";
+			this.LogBox.Size = new System.Drawing.Size(282, 212);
+			this.LogBox.TabIndex = 10;
 			// 
 			// PortTextBox
 			// 
@@ -131,20 +132,32 @@
 			this.DatabaseIPTextBox.TextWrapper = "";
 			this.DatabaseIPTextBox.WatermarkedText = "Database IP";
 			// 
+			// UserBox
+			// 
+			this.UserBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.UserBox.FormattingEnabled = true;
+			this.UserBox.Location = new System.Drawing.Point(462, 13);
+			this.UserBox.Name = "UserBox";
+			this.UserBox.Size = new System.Drawing.Size(90, 212);
+			this.UserBox.TabIndex = 16;
+			// 
 			// HostMenu
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.AutoValidate = System.Windows.Forms.AutoValidate.EnableAllowFocusChange;
-			this.ClientSize = new System.Drawing.Size(342, 211);
+			this.ClientSize = new System.Drawing.Size(564, 250);
+			this.Controls.Add(this.UserBox);
 			this.Controls.Add(this.PortTextBox);
 			this.Controls.Add(this.DatabasePasswordTextBox);
 			this.Controls.Add(this.DatabaseUserIDTextBox);
 			this.Controls.Add(this.DatabaseNameTextBox);
 			this.Controls.Add(this.DatabaseIPTextBox);
-			this.Controls.Add(this.listBox1);
+			this.Controls.Add(this.LogBox);
 			this.Controls.Add(this.ReturnButton);
 			this.Controls.Add(this.HostButton);
+			this.MinimumSize = new System.Drawing.Size(388, 216);
 			this.Name = "HostMenu";
 			this.Text = "Host Menu";
 			this.ResumeLayout(false);
@@ -154,11 +167,12 @@
 		#endregion
 		private System.Windows.Forms.Button HostButton;
 		private System.Windows.Forms.Button ReturnButton;
-		private System.Windows.Forms.ListBox listBox1;
+		private System.Windows.Forms.ListBox LogBox;
 		private WatermarkedRichTextBox DatabaseIPTextBox;
 		private WatermarkedRichTextBox DatabaseNameTextBox;
 		private WatermarkedRichTextBox DatabaseUserIDTextBox;
 		private WatermarkedRichTextBox DatabasePasswordTextBox;
 		private WatermarkedRichTextBox PortTextBox;
+		private System.Windows.Forms.ListBox UserBox;
 	}
 }

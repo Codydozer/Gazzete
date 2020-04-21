@@ -1,14 +1,8 @@
 ﻿using Gazette.Network;
 using MySql.Data.MySqlClient;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Net;
-using System.Net.Sockets;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -88,14 +82,19 @@ namespace Gazette
 			};
 
 			myConnection = new MySqlConnection(connectionStringBuilder.ConnectionString);
-			Log("Starting server!");
 			try
 			{
+				Log("Connecting to database.");
+
 				// MySQL hasn't implimented this correctly, so you have to create a task.
-				Task sqlTask = Task.Run(() => myConnection.OpenAsync());
+				await Task.Run(() => myConnection.OpenAsync());
+
+				Log("Connected to database.");
+
 				server = new NetworkServer(new IPEndPoint(IPAddress.Loopback, port));
-				server.OutputLog += (s) => BeginInvoke((Action)(() => Log(s)));
-				await sqlTask;
+				server.OutputLog += (s) => BeginInvoke((Action)(() => Log(s, false)));
+				server.ClientsChanged += (s) => BeginInvoke((Action)(() => { UserBox.Items.Clear(); UserBox.Items.AddRange(s); }));
+
 				return server.Start();
 			}
 			catch (Exception exception)
@@ -121,9 +120,12 @@ namespace Gazette
 		}
 		#endregion
 		
-		void Log(string s)
+		void Log(string message, bool displayTime = true)
 		{
-			listBox1.Items.Add($"{DateTime.Now.ToLongTimeString()}: {s}");
+			if (displayTime)
+				LogBox.Items.Add($"{DateTime.Now.ToLongTimeString()}: {message}");
+			else
+				LogBox.Items.Add(message);
 		}
 
 		public void Connect(string databaseIP, string databaseName, string databaseUserID, string databasePassword, string serverPort)
