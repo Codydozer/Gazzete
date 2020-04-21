@@ -20,7 +20,6 @@ namespace Gazette
 
 		public async Task ConnectAsync(IPEndPoint address, string userID)
 		{
-			UpdateUserLog();
 			TcpClient tcpClient = new TcpClient();
 			tcpClient.Connect(address);
 
@@ -28,7 +27,7 @@ namespace Gazette
 			client.Name = userID;
 			await client.SendMessageAsync(new JoinMessage() { Name = client.Name }, tokenSource.Token);
 			_ = Task.Run(() => ClientLoop(tokenSource.Token));
-			
+			UpdateUsersLog();
 		}
 
 		private async Task ClientLoop(CancellationToken token)
@@ -65,9 +64,9 @@ namespace Gazette
 			}
 		}
 
-		private void UpdateUserLog()
+		private void UpdateUsersLog()
 		{
-			UsersLog.Items.Add(userID);
+			UsersLog.Items.Add(client.Name);
 		}
 	}
 }
