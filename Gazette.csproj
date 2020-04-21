@@ -84,6 +84,7 @@
       <DependentUpon>MainMenu.cs</DependentUpon>
     </Compile>
     <Compile Include="NetworkMessages\ChatMessage.cs" />
+    <Compile Include="NetworkMessages\DisconnectMessage.cs" />
     <Compile Include="NetworkMessages\JoinMessage.cs" />
     <Compile Include="NetworkMessages\NetworkMessage.cs" />
     <Compile Include="NetworkMessages\UsersMessage.cs" />

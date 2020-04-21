@@ -74,7 +74,8 @@ namespace Gazette.Network
 
 					// Otherwise remove them and tell listeners about the change
 					clients.Remove(client);
-					Log($"{client.Name} disconnected from the server.");
+					Log($"{client.Name} disconnected from the server."); 
+					MessageClients(new DisconnectMessage() { Name = client.Name });
 					shouldUpdate = true;
 				}
 
@@ -94,12 +95,18 @@ namespace Gazette.Network
 			lock (this)
 			{
 				if (message is ChatMessage chatMessage)
+				{
 					Log($"{client.Name} says, \"{chatMessage.Text}\"");
-				else if(message is JoinMessage joinMessage)
+					MessageClients(chatMessage);
+				}
+				else if (message is JoinMessage joinMessage)
 				{
 					client.Name = joinMessage.Name;
 					clients.Add(client);
+
+
 					UpdateClients();
+					MessageClients(joinMessage);
 
 					Log($"{client.Name} joined the server.");
 				}
@@ -111,8 +118,13 @@ namespace Gazette.Network
 			string[] clientNames = clients.Select((c) => c.Name).ToArray();
 			ClientsChanged.Invoke(clientNames);
 
+			MessageClients(new UsersMessage() { Users = clientNames });
+		}
+
+		private void MessageClients(NetworkMessage message)
+		{
 			foreach (NetworkClient client in clients)
-				Task.Run(() => client.SendMessageAsync(new UsersMessage() { Users = clientNames }, tokenSource.Token));
+				Task.Run(() => client.SendMessageAsync(message, tokenSource.Token));
 		}
 
 		void Log(string text) => OutputLog.Invoke($"{DateTime.Now.ToLongTimeString()}: {text}");
