@@ -19,7 +19,7 @@ namespace Gazette
 	public partial class ChatMenu : Form
 	{
 		private TcpClient client;
-		private string UserID;
+		private string userID;
 		private CancellationTokenSource tokenSource = new CancellationTokenSource();
 		public ChatMenu()
 		{
@@ -28,10 +28,10 @@ namespace Gazette
 
 		public void Connect(IPEndPoint address, string userID)
 		{
-			UserID = userID;
+			this.userID = userID;
 			client = new TcpClient();
 			client.Connect(address);
-			new JoinMessage() { UserID = UserID }.Send(client);
+			new JoinMessage() { UserID = userID }.Send(client);
 			Task.Run(() => ClientLoop(tokenSource.Token));
 			UpdateUserLog();
 		}
@@ -47,7 +47,14 @@ namespace Gazette
 
 		private void HandleMessage(NetworkMessage message)
 		{
-
+			{
+				if (message is UsersMessage usersMessage)
+				{
+					BeginInvoke((Action)(() => {
+						ChatLog.Items.AddRange(usersMessage.Users);
+					}));
+				}
+			}
 		}
 
 		private void SendButton_Click(object sender, EventArgs e)
@@ -66,7 +73,7 @@ namespace Gazette
 
 		private void UpdateUserLog()
 		{
-			UsersLog.Items.Add(UserID);
+			UsersLog.Items.Add(userID);
 		}
 	}
 }
