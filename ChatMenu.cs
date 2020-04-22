@@ -34,19 +34,16 @@ namespace Gazette
 		{
 			while (!token.IsCancellationRequested)
 			{
-				HandleMessage(await client.GetMessageAsync(tokenSource.Token));
+				NetworkMessage message = await client.GetMessageAsync(tokenSource.Token);
+				BeginInvoke((Action)(() => HandleMessage(message)));
 			}
 		}
 
 		private void HandleMessage(NetworkMessage message)
 		{
+			if (message is UsersMessage usersMessage)
 			{
-				if (message is UsersMessage usersMessage)
-				{
-					BeginInvoke((Action)(() => {
-						ChatLog.Items.AddRange(usersMessage.Users);
-					}));
-				}
+				ChatLog.Items.AddRange(usersMessage.Users);
 			}
 		}
 
