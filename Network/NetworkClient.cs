@@ -33,7 +33,7 @@ namespace Gazette.Network
 
 		public bool IsConnected()
 		{
-			return IPGlobalProperties.GetIPGlobalProperties().GetActiveTcpConnections().SingleOrDefault(x => x.LocalEndPoint.Equals(tcpClient.Client.LocalEndPoint))?.State == TcpState.Established;
+			return IPGlobalProperties.GetIPGlobalProperties().GetActiveTcpConnections().SingleOrDefault(x => x.RemoteEndPoint.Equals(tcpClient.Client.RemoteEndPoint))?.State == TcpState.Established;
 		}
 	}
 }
