@@ -27,7 +27,7 @@ namespace Gazette
 			client.Name = userID;
 			await client.SendMessageAsync(new JoinMessage() { Name = client.Name }, tokenSource.Token);
 			_ = Task.Run(() => ClientLoop(tokenSource.Token));
-			
+			UpdateUsersLog();
 		}
 
 		private async Task ClientLoop(CancellationToken token)
@@ -40,7 +40,14 @@ namespace Gazette
 
 		private void HandleMessage(NetworkMessage message)
 		{
-
+			{
+				if (message is UsersMessage usersMessage)
+				{
+					BeginInvoke((Action)(() => {
+						ChatLog.Items.AddRange(usersMessage.Users);
+					}));
+				}
+			}
 		}
 
 		private async void SendButton_Click(object sender, EventArgs e)
@@ -55,6 +62,11 @@ namespace Gazette
 			{
 				SendButton.PerformClick();
 			}
+		}
+
+		private void UpdateUsersLog()
+		{
+			UsersLog.Items.Add(client.Name);
 		}
 	}
 }
